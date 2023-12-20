@@ -1,7 +1,7 @@
 package com.example.springredditclone.exceptions;
 
-public class SpringRedditException extends Throwable {
-    public SpringRedditException(String message) {
-        super(message);
+public class SpringRedditException extends RuntimeException {
+    public SpringRedditException(String msg) {
+        super(msg);
     }
 }

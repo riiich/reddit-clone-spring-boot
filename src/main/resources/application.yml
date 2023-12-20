@@ -15,10 +15,10 @@ spring:
     show-sql: true
   # Email properties
   mail:
-    host: smtp.mailtrap.io
+    host: sandbox.smtp.mailtrap.io
     port: 25
-    username:
-    password:
+    username: 2affd4eb8caedf
+    password: 463a1c070c8082
     protocol: smtp
 
 

@@ -27,7 +27,7 @@ public class SecurityConfig  {
         return http.build();
     }
 
-    // PasswordEncoder: Spring Security's interface that is used to perform a one-way transforimation of a password to let the password be stored securely
+    // PasswordEncoder: Spring Security's interface that is used to perform a one-way transformation of a password to let the password be stored securely
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

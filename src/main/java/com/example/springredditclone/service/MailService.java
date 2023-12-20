@@ -17,7 +17,7 @@ public class MailService {
     private final JavaMailSender emailSender;
     private final MailContentBuilder mailContentBuilder;
 
-    public void sendEmail(NotificationEmail notificationEmail) throws SpringRedditException {
+    public void sendEmail(NotificationEmail notificationEmail)  {
         MimeMessagePreparator messagePreparator = mimeMessage -> {
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
             messageHelper.setFrom("springbootreddit@email.com");
