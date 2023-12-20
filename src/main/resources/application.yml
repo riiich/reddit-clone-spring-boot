@@ -13,3 +13,12 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  # Email properties
+  mail:
+    host: smtp.mailtrap.io
+    port: 25
+    username:
+    password:
+    protocol: smtp
+
+
