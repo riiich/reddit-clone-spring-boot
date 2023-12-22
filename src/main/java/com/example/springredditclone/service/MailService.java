@@ -8,6 +8,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,6 +18,7 @@ public class MailService {
     private final JavaMailSender emailSender;
     private final MailContentBuilder mailContentBuilder;
 
+    @Async      // making it async so that it doesn't have to wait to finish storing user in database before sending out an email
     public void sendEmail(NotificationEmail notificationEmail)  {
         MimeMessagePreparator messagePreparator = mimeMessage -> {
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);

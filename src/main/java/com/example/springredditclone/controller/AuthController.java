@@ -1,5 +1,7 @@
 package com.example.springredditclone.controller;
 
+import com.example.springredditclone.dto.AuthenticationResponse;
+import com.example.springredditclone.dto.LoginRequest;
 import com.example.springredditclone.dto.RegisterRequest;
 import com.example.springredditclone.model.User;
 import com.example.springredditclone.service.AuthService;
@@ -27,5 +29,10 @@ public class AuthController {
     public ResponseEntity<String> verifyAccount(@PathVariable("token") String token) {
         authService.verifyAccount(token);
         return new ResponseEntity<>("Congratulations, you have been verified!", HttpStatus.OK);
+    }
+
+    @PostMapping("/login")
+    public AuthenticationResponse login(@RequestBody LoginRequest loginRequest) {
+        return authService.login(loginRequest);
     }
 }

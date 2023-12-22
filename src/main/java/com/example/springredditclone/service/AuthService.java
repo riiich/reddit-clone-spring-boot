@@ -1,5 +1,7 @@
 package com.example.springredditclone.service;
 
+import com.example.springredditclone.dto.AuthenticationResponse;
+import com.example.springredditclone.dto.LoginRequest;
 import com.example.springredditclone.dto.RegisterRequest;
 import com.example.springredditclone.exceptions.SpringRedditException;
 import com.example.springredditclone.model.NotificationEmail;
@@ -7,8 +9,13 @@ import com.example.springredditclone.model.User;
 import com.example.springredditclone.model.VerificationToken;
 import com.example.springredditclone.repository.UserRepository;
 import com.example.springredditclone.repository.VerificationTokenRepository;
+import com.example.springredditclone.security.JWTProvider;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +30,8 @@ public class AuthService {
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailService mailService;
+    private final AuthenticationManager authenticationManager;
+    private final JWTProvider jwtProvider;
 
     // if transaction is successful, the changes made are committed to the database, if any transaction fails, the database will remain in a consistent state
     // use since we're interacting with the database
@@ -72,5 +81,13 @@ public class AuthService {
         User user = userRepository.findById(userId).orElseThrow(() -> new SpringRedditException("User does not exist!"));
         user.setEnabled(true);
         userRepository.save(user);
+    }
+
+    public AuthenticationResponse login(LoginRequest loginRequest) {
+        Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        String jwt = jwtProvider.generateToken(auth);   // token is generated
+
+        return new AuthenticationResponse(loginRequest.getUsername(), jwt);
     }
 }
