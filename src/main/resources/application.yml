@@ -1,3 +1,5 @@
+server:
+  port: 8080
 # Database properties
 spring:
   datasource:
@@ -20,5 +22,12 @@ spring:
     username: 2affd4eb8caedf
     password: 463a1c070c8082
     protocol: smtp
+jwt:
+  expiration:
+    time: 90000
+  public:
+    key: classpath:app.pub
+  private:  # don't show this to public
+    key: classpath:app.key
 
 

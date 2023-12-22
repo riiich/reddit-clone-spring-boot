@@ -12,6 +12,7 @@ import com.example.springredditclone.repository.VerificationTokenRepository;
 import com.example.springredditclone.security.JWTProvider;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -85,7 +86,7 @@ public class AuthService {
 
     public AuthenticationResponse login(LoginRequest loginRequest) {
         Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(auth);     // store authentication object inside security context (used to check if the user is logged in or not)
         String jwt = jwtProvider.generateToken(auth);   // token is generated
 
         return new AuthenticationResponse(loginRequest.getUsername(), jwt);
