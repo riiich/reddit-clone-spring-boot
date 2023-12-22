@@ -3,21 +3,18 @@ package com.example.springredditclone.controller;
 import com.example.springredditclone.dto.AuthenticationResponse;
 import com.example.springredditclone.dto.LoginRequest;
 import com.example.springredditclone.dto.RegisterRequest;
-import com.example.springredditclone.model.User;
 import com.example.springredditclone.service.AuthService;
 import lombok.AllArgsConstructor;
-import org.antlr.v4.runtime.Token;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+// takes care of user authentication
 @RestController
 @RequestMapping("/api/auth")
 @AllArgsConstructor
 public class AuthController {
     private final AuthService authService;
-//    private final User user;
 
     @PostMapping("/signUp")
     public ResponseEntity<String> signUp(@RequestBody RegisterRequest registerRequest) {
