@@ -9,9 +9,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
-    private String email;
-    private String username;
-    private String password;
-
+@Builder
+public class PostRequest {
+    private Long postId;
+    @NotBlank(message="Post name is required")
+    private String postName;
+    private String description;
+    private String url;
+    private String subRedditName;
 }

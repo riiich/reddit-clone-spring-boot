@@ -10,15 +10,16 @@ import com.example.springredditclone.model.VerificationToken;
 import com.example.springredditclone.repository.UserRepository;
 import com.example.springredditclone.repository.VerificationTokenRepository;
 import com.example.springredditclone.security.JWTProvider;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -90,5 +91,36 @@ public class AuthService {
         String jwt = jwtProvider.generateToken(auth);   // token is generated
 
         return new AuthenticationResponse(loginRequest.getUsername(), jwt);
+    }
+
+    @Transactional(readOnly = true)
+    public User getCurrentUser() {
+        // JWT principal: a specific user for whom a specific token was issued
+        // SecurityContextHolder: it's where Spring Security stores the details of who is authenticated
+        Jwt principal = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return this.userRepository.findByUsername(principal.getSubject())
+                .orElseThrow(() -> new SpringRedditException("User cannot be found: " + principal.getSubject()));
+    }
+
+    // gets the refresh token for the user
+//    public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+//        refreshTokenRequest.validateRefreshToken(refreshTokenRequest.getRefreshToken());
+//        String token = jwtProvider.generateTokenWithUsername(refreshTokenRequest.getUserName());
+//
+//        return AuthenticationResponse
+//                .builder()
+//                .authenticationToken(token)
+//                .refreshToken(refreshTokenRequest.getRefreshToken())
+//                .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationTime()))
+//                .username(refreshTokenRequest.getUserName())
+//                .build();
+//    }
+
+    // checks to see if the user is currently logged in
+    public boolean isLoggedIn() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return (!(auth instanceof AnonymousAuthenticationToken) &&
+                auth.isAuthenticated());
     }
 }

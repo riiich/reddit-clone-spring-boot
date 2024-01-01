@@ -1,6 +1,8 @@
 package com.example.springredditclone.service;
 
-import com.example.springredditclone.dto.SubRedditRequest;
+import com.example.springredditclone.dto.SubRedditDto;
+import com.example.springredditclone.exceptions.SpringRedditException;
+import com.example.springredditclone.mapper.SubRedditMapper;
 import com.example.springredditclone.model.SubReddit;
 import com.example.springredditclone.repository.SubRedditRepository;
 import lombok.AllArgsConstructor;
@@ -16,31 +18,30 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SubRedditService {
     private final SubRedditRepository subRedditRepository;
+    private final SubRedditMapper subRedditMapper;
 
-    public SubRedditRequest createSubReddit(SubRedditRequest subRedditRequest) {
-        SubReddit subReddit = subRedditRepository.save(buildSubReddit(subRedditRequest));
-        subRedditRequest.setSubRedditId(subReddit.getId());
+    public SubRedditDto createSubReddit(SubRedditDto subRedditDto) {
+        SubReddit subReddit = subRedditRepository.save(subRedditMapper.mapDtoToSubreddit(subRedditDto));
+        subRedditDto.setSubRedditId(subReddit.getId());
 
-        return subRedditRequest;
-    }
-
-    private SubReddit buildSubReddit(SubRedditRequest subRedditRequest) {
-        return SubReddit.builder()
-                .name(subRedditRequest.getSubRedditName())
-                .description(subRedditRequest.getDescription())
-                .build();
+        return subRedditDto;
     }
 
     @Transactional(readOnly = true)
-    public List<SubRedditRequest> allSubReddits() {
-        return subRedditRepository.findAll().stream().map(this::mapToSubRedditRequests).collect(Collectors.toList());
+    public List<SubRedditDto> allSubReddits() {
+        return subRedditRepository
+                .findAll()
+                .stream()
+                .map(subRedditMapper::mapToSubRedditDto)
+                .collect(Collectors.toList());
     }
 
-    private SubRedditRequest mapToSubRedditRequests(SubReddit subReddit) {
-        return SubRedditRequest.builder()
-                .subRedditName(subReddit.getName())
-                .subRedditId(subReddit.getId())
-                .numOfPosts(subReddit.getPosts().size())
-                .build();
+    @Transactional(readOnly = true)
+    public SubRedditDto subRedditById(Long id) {
+        SubReddit subReddit = subRedditRepository
+                                .findById(id)
+                                .orElseThrow(() -> new SpringRedditException("This subreddit does not exist!"));
+
+        return this.subRedditMapper.mapToSubRedditDto(subReddit);
     }
 }

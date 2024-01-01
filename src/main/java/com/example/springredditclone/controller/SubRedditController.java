@@ -1,6 +1,6 @@
 package com.example.springredditclone.controller;
 
-import com.example.springredditclone.dto.SubRedditRequest;
+import com.example.springredditclone.dto.SubRedditDto;
 import com.example.springredditclone.model.SubReddit;
 import com.example.springredditclone.service.SubRedditService;
 import lombok.AllArgsConstructor;
@@ -19,12 +19,23 @@ public class SubRedditController {
     private final SubRedditService subRedditService;
 
     @PostMapping
-    public ResponseEntity<SubRedditRequest> createSubReddit(@RequestBody SubRedditRequest subRedditRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.subRedditService.createSubReddit(subRedditRequest));
+    public ResponseEntity<SubRedditDto> createSubReddit(@RequestBody SubRedditDto subRedditRequest) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(this.subRedditService.createSubReddit(subRedditRequest));
     }
 
     @GetMapping
-    public ResponseEntity<List<SubRedditRequest>> getAllSubReddits() {
-        return ResponseEntity.status(HttpStatus.OK).body(subRedditService.allSubReddits());
+    public ResponseEntity<List<SubRedditDto>> getAllSubReddits() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(this.subRedditService.allSubReddits());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SubRedditDto> getSubRedditById(@PathVariable("id") Long id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(this.subRedditService.subRedditById(id));
     }
 }
