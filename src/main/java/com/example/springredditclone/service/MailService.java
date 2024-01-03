@@ -20,7 +20,7 @@ public class MailService {
 
     @Async      // making it async so that it doesn't have to wait to finish storing user in database before sending out an email
     public void sendEmail(NotificationEmail notificationEmail)  {
-        MimeMessagePreparator messagePreparator = mimeMessage -> {
+        MimeMessagePreparator preparedMessage = mimeMessage -> {
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
             messageHelper.setFrom("springbootreddit@email.com");
             messageHelper.setTo(notificationEmail.getRecipient());
@@ -29,7 +29,7 @@ public class MailService {
         };
 
         try {
-            emailSender.send(messagePreparator);
+            emailSender.send(preparedMessage);
             log.info("Activation link is sent to your email!");
         } catch(MailException e) {
             throw new SpringRedditException("There was an error sending the activation link to your email, " + notificationEmail.getRecipient() + " ;(");

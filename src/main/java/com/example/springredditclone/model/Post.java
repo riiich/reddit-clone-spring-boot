@@ -21,9 +21,7 @@ public class Post {
     private Long postId;
     @NotBlank(message = "Must have a title for the post!")
     private String postTitle;
-    @Nullable
     private String url;
-    @Nullable
     @Lob    // @Lob: Specifies that a persistent property or field should be persisted as a large object to a database-supported large object type
     private String description;
     private Integer voteCount;

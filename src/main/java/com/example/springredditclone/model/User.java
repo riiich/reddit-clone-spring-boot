@@ -22,8 +22,8 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
-    @NotBlank(message = "A username is required!")
-    private String username;
+//    @NotBlank(message = "A username is required!")
+    private String userName;
     @NotBlank(message = "A password is required!")
     private String password;
     @Email

@@ -38,8 +38,9 @@ public class PostService {
                                 .orElseThrow(() -> new SubRedditNotFoundException(postRequest.getSubRedditName()));
 
         // get the user that posted the post
-//        User currUser =  this.authService.getCurrentUser();
-        this.postRepository.save(this.postMapper.map(postRequest, subReddit, this.authService.getCurrentUser()));
+        User currUser =  this.authService.getCurrentUser();
+        System.out.println(currUser);
+        this.postRepository.save(this.postMapper.map(postRequest, subReddit, currUser));
     }
 
     // get one post
@@ -66,7 +67,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public List<PostResponse> getPostsFromUser(String userName) {
         User user = this.userRepository
-                        .findByUsername(userName)
+                        .findByUserName(userName)
                         .orElseThrow(() -> new UsernameNotFoundException(userName));
 
         return this.postRepository

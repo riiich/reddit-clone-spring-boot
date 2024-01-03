@@ -16,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
@@ -41,7 +43,7 @@ public class AuthService {
     public void signUp(RegisterRequest registerRequest) {
         User user = new User();
         user.setEmail(registerRequest.getEmail());
-        user.setUsername(registerRequest.getUsername());
+        user.setUserName(registerRequest.getUsername());
         user.setPassword(this.passwordEncoder.encode(registerRequest.getPassword()));
         user.setDateCreated(Instant.now());
         user.setEnabled(false);    // user is disabled until acc is validated
@@ -90,7 +92,12 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(auth);     // store authentication object inside security context (used to check if the user is logged in or not)
         String jwt = jwtProvider.generateToken(auth);   // token is generated
 
-        return new AuthenticationResponse(loginRequest.getUsername(), jwt);
+        return AuthenticationResponse.builder()
+                .authToken(jwt)
+//                .refreshToken(refreshTokenService.generateRefreshToken().getToken())
+                .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationTime()))
+                .username(loginRequest.getUsername())
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -99,8 +106,8 @@ public class AuthService {
         // SecurityContextHolder: it's where Spring Security stores the details of who is authenticated
         Jwt principal = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        return this.userRepository.findByUsername(principal.getSubject())
-                .orElseThrow(() -> new SpringRedditException("User cannot be found: " + principal.getSubject()));
+        return this.userRepository.findByUserName(principal.getSubject())
+                .orElseThrow(() -> new UsernameNotFoundException("User cannot be found: " + principal.getSubject()));
     }
 
     // gets the refresh token for the user
@@ -120,7 +127,6 @@ public class AuthService {
     // checks to see if the user is currently logged in
     public boolean isLoggedIn() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (!(auth instanceof AnonymousAuthenticationToken) &&
-                auth.isAuthenticated());
+        return (!(auth instanceof AnonymousAuthenticationToken) && auth.isAuthenticated());
     }
 }

@@ -23,7 +23,6 @@ public class Comment {
     private Long commentId;
     @NotEmpty
     private String comment;
-
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="userId", referencedColumnName = "userId")
