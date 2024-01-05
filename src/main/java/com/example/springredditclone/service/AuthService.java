@@ -2,6 +2,7 @@ package com.example.springredditclone.service;
 
 import com.example.springredditclone.dto.AuthenticationResponse;
 import com.example.springredditclone.dto.LoginRequest;
+import com.example.springredditclone.dto.RefreshTokenRequest;
 import com.example.springredditclone.dto.RegisterRequest;
 import com.example.springredditclone.exceptions.SpringRedditException;
 import com.example.springredditclone.model.NotificationEmail;
@@ -33,9 +34,10 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
-    private final MailService mailService;
     private final AuthenticationManager authenticationManager;
+    private final MailService mailService;
     private final JWTProvider jwtProvider;
+    private final RefreshTokenService refreshTokenService;
 
     // if transaction is successful, the changes made are committed to the database, if any transaction fails, the database will remain in a consistent state
     // use since we're interacting with the database
@@ -93,11 +95,11 @@ public class AuthService {
         String jwt = jwtProvider.generateToken(auth);   // token is generated
 
         return AuthenticationResponse.builder()
-                .authToken(jwt)
-//                .refreshToken(refreshTokenService.generateRefreshToken().getToken())
-                .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationTime()))
-                .username(loginRequest.getUsername())
-                .build();
+                                     .authToken(jwt)
+                                     .refreshToken(this.refreshTokenService.generateRefreshToken().getToken())  // new genereated refresh token
+                                     .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationTime()))
+                                     .username(loginRequest.getUsername())
+                                     .build();
     }
 
     @Transactional(readOnly = true)
@@ -111,18 +113,18 @@ public class AuthService {
     }
 
     // gets the refresh token for the user
-//    public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
-//        refreshTokenRequest.validateRefreshToken(refreshTokenRequest.getRefreshToken());
-//        String token = jwtProvider.generateTokenWithUsername(refreshTokenRequest.getUserName());
-//
-//        return AuthenticationResponse
-//                .builder()
-//                .authenticationToken(token)
-//                .refreshToken(refreshTokenRequest.getRefreshToken())
-//                .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationTime()))
-//                .username(refreshTokenRequest.getUserName())
-//                .build();
-//    }
+    public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+        this.refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken());
+        String token = jwtProvider.generateTokenWithUsername(refreshTokenRequest.getUserName());
+
+        // return a RefreshTokenRequest with a new refresh token
+        return AuthenticationResponse.builder()
+                                     .authToken(token)
+                                     .refreshToken(refreshTokenRequest.getRefreshToken())
+                                     .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationTime()))
+                                     .username(refreshTokenRequest.getUserName())
+                                     .build();
+    }
 
     // checks to see if the user is currently logged in
     public boolean isLoggedIn() {

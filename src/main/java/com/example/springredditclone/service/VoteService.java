@@ -21,7 +21,6 @@ import java.util.Optional;
 @AllArgsConstructor
 public class VoteService {
     private final VoteRepository voteRepository;
-    private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final AuthService authService;
 
@@ -33,19 +32,34 @@ public class VoteService {
 
         User currUser = this.authService.getCurrentUser();
 
-        Optional<Vote> topVoteFromUserandPost = this.voteRepository.findTopByUserAndPostOrderByVoteIdDesc(post, currUser);
+        Optional<Vote> topVoteFromUserAndPost = this.voteRepository.findTopByUserAndPostOrderByVoteIdDesc(currUser, post);
         // validation to make sure user is only able to either upvote or downvote (users are not allowed to upvote/downvote more than one time)
-        if(topVoteFromUserandPost.isPresent() && topVoteFromUserandPost.get().equals(voteDto.getVoteType())) {
-            throw new SpringRedditException("You have already " + voteDto.getVoteType() + "d this post!");
+        if(topVoteFromUserAndPost.isPresent() && topVoteFromUserAndPost.get().getVoteType().equals(voteDto.getVoteType())) {
+            throw new SpringRedditException("You have already " + voteDto.getVoteType().toString().toLowerCase() + "d this post!");
         }
 
         // keep track of vote counts
+//        if(voteDto.getVoteType() != null) {
         if(VoteType.UPVOTE.equals(voteDto.getVoteType())) {
-            post.setVoteCount(post.getVoteCount() + 1);
+            if(post.getVoteCount() == 0) {
+                post.setVoteCount(post.getVoteCount() + 1);
+            }
+            else{
+                post.setVoteCount(post.getVoteCount() + 2);
+            }
+//            post.setVoteCount(post.getVoteCount() + 1);   // upvote
         }
         else {
-            post.setVoteCount(post.getVoteCount() - 1);     // downvote
+            if(post.getVoteCount() == 0) {
+                post.setVoteCount(post.getVoteCount() - 1);
+            }
+            else{
+                post.setVoteCount(post.getVoteCount() - 2);
+            }
+//            post.setVoteCount(post.getVoteCount() - 1);     // downvote
         }
+//        }
+
 
         this.voteRepository.save(mapToVote(voteDto, post));
         this.postRepository.save(post);
@@ -55,8 +69,8 @@ public class VoteService {
     private Vote mapToVote(VoteDto voteDto, Post post) {
         return Vote.builder()
                 .voteType(voteDto.getVoteType())
-                .user(this.authService.getCurrentUser())
                 .post(post)
+                .user(this.authService.getCurrentUser())
                 .build();
     }
 }

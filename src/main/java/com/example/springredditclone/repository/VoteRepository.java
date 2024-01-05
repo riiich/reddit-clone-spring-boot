@@ -10,5 +10,8 @@ import java.util.Optional;
 
 @Repository
 public interface VoteRepository extends JpaRepository<Vote, Long> {
-    Optional<Vote> findTopByUserAndPostOrderByVoteIdDesc(Post post, User currUser);   // get the latest vote by the user in a certain post
+    // for future reference: the ordering of naming the function depends on the order in which the parameters are ordered
+    // (ex. (User user, Post post) -> findTopByUserAndPostOrderByVoteIdDesc, (Post post, User user) -> findTopByPostAndUserOrderByVoteIdDesc)
+
+    Optional<Vote> findTopByUserAndPostOrderByVoteIdDesc(User currUser, Post post);   // get the latest vote by the user in a certain post
 }

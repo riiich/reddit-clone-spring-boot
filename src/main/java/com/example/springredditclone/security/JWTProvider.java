@@ -32,19 +32,18 @@ public class JWTProvider {
 
     public String generateTokenWithUsername(String username) {
         // the payload
-        JwtClaimsSet claims = JwtClaimsSet
-                .builder()
-                .issuer("self")
-                .issuedAt(Instant.now())
-                .expiresAt(Instant.now().plusMillis(jwtExpirationTime))
-                .subject(username)
-                .claim("scope", "ROLE_USER")
-                .build();
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                                        .issuer("self")
+                                        .issuedAt(Instant.now())
+                                        .expiresAt(Instant.now().plusMillis(jwtExpirationTime))
+                                        .subject(username)
+                                        .claim("scope", "ROLE_USER")
+                                        .build();
 
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
     public Long getJwtExpirationTime() {
-        return jwtExpirationTime;
+        return this.jwtExpirationTime;
     }
 }

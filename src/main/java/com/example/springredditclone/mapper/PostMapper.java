@@ -60,7 +60,7 @@ public abstract class PostMapper {
 
     private boolean checkVoteType(Post post, VoteType voteType) {
         if(this.authService.isLoggedIn()) {
-            Optional<Vote> voteForPostByUser = this.voteRepository.findTopByUserAndPostOrderByVoteIdDesc(post, this.authService.getCurrentUser());
+            Optional<Vote> voteForPostByUser = this.voteRepository.findTopByUserAndPostOrderByVoteIdDesc(this.authService.getCurrentUser(), post);
 
             return voteForPostByUser.filter(vote -> vote.getVoteType().equals(voteType)).isPresent();
         }

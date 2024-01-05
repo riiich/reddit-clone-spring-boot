@@ -24,7 +24,7 @@ spring:
     protocol: smtp
 jwt:
   expiration:
-    time: 90000
+    time: 900000
   public:
     key: classpath:app.pub
   private:  # don't show this to public
